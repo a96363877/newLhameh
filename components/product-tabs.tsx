@@ -25,7 +25,7 @@ const products = [
   },
   {
     id: 3,
-    name: "صينية ستيك ريب آي متبلة, جاهزة",
+    name: "صينية ستيك ريب آي متبلة, مع خضار مقطع ",
     category: "جاهز للطبخ",
     price: 6.0,
     image: "/5.jpg",
@@ -78,9 +78,9 @@ export default function ProductTabs() {
       <div className="container mx-auto px-4 py-6">
         <div className="grid grid-cols-2 gap-6">
           {products.map((product) => (
-            <div key={product.id} className="relative">
+            <div key={product.id} className="relative max-h-[400px]">
               <div className="relative aspect-square overflow-hidden rounded-lg">
-                <img src={product.image || "/placeholder.svg"} alt={product.name} fill className="object-cover" />
+                <img src={product.image || "/placeholder.svg"} alt={product.name}  className="object-cover" />
                 <button
                   className="absolute right-2 top-2 rounded-full bg-white p-1.5 shadow"
                   aria-label={product.isFavorite ? "إزالة من المفضلة" : "إضافة إلى المفضلة"}
