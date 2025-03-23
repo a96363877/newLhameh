@@ -183,7 +183,7 @@ export default function Payment (props: any)  {
                   style={{ display: 'flex', justifyContent: 'center' }}
                 >
                   <img
-                    src="./kv.png"
+                    src="/kv.png"
                     className="-"
                     alt="logo"
                     height={50}
