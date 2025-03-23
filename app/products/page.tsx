@@ -183,7 +183,7 @@ export default function ProductsPage() {
         <div className="grid grid-cols-1   gap-4">
           {products.map((product) => (
             <div key={product.id} className="relative rounded-lg bg-white shadow">
-              <div className="relative aspect-1/2 overflow-hidden rounded-t-lg">
+              <div className="relative aspect-1/1 overflow-hidden rounded-t-lg">
                 <img src={product.image || "/placeholder.svg"} alt={product.name}  className="object-cover" />
                 <button
                   className="absolute right-2 top-2 rounded-full bg-white p-1.5 shadow"
