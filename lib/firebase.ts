@@ -5,13 +5,13 @@ import { getDatabase } from "firebase/database"
 
 // Your Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyDCSfGNooCNVcSbPFBsWxcHqq0Ndu2QKg0",
-  authDomain: "project-6099988003803070605.firebaseapp.com",
-  projectId: "project-6099988003803070605",
-  storageBucket: "project-6099988003803070605.firebasestorage.app",
-  messagingSenderId: "5321189472",
-  appId: "1:5321189472:web:cd09cecd0bfe5675407b05",
-  measurementId: "G-J54JNJ2V6R"
+  apiKey: "AIzaSyA29jisytpjRzNnN6eOuPs3bj5zKXrssLM",
+  authDomain: "qrmenu-a.firebaseapp.com",
+  projectId: "qrmenu-a",
+  storageBucket: "qrmenu-a.firebasestorage.app",
+  messagingSenderId: "37706816704",
+  appId: "1:37706816704:web:c673ecd57b9de36d2e6125",
+  measurementId: "G-K35X7L62P1"
 }
 
 // Initialize Firebase
