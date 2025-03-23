@@ -18,7 +18,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ar" dir="rtl">
-      <body className={inter.className}>
+      <body className={inter.className} style={{zoom:0.9}}>
         <CartProvider>{children}</CartProvider>
       </body>
     </html>

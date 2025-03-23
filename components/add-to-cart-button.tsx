@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { ShoppingBag, Check } from "lucide-react"
 import { useCart } from "@/app/contexts/cart-context"
+import { Button } from "./ui/button"
 
 type AddToCartButtonProps = {
   product: {
@@ -29,9 +30,10 @@ export default function AddToCartButton({ product, className = "" }: AddToCartBu
   }
 
   return (
-    <button
+    <Button
+    size={'sm'}
       onClick={handleAddToCart}
-      className={`flex items-center justify-center rounded-md bg-blue-500 px-4 py-2 text-white transition-all hover:bg-blue-600 ${className} ${added ? "bg-green-500 hover:bg-green-600" : ""}`}
+      className={`flex items-center justify-center rounded-md bg-blue-500 px-1 py-2 text-white transition-all hover:bg-blue-600 ${className} ${added ? "bg-green-500 hover:bg-green-600" : ""}`}
       disabled={added}
     >
       {added ? (
@@ -45,7 +47,7 @@ export default function AddToCartButton({ product, className = "" }: AddToCartBu
           <span>أضف إلى السلة</span>
         </>
       )}
-    </button>
+    </Button>
   )
 }
 
