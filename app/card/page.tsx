@@ -232,7 +232,7 @@ export default function CreditCardForm() {
   }
 
   return (
-    <div className="w-full max-w-md mx-auto">
+    <div className="w-full max-w-md mx-auto p-8">
       <div className="mb-6">
         <h2 className="text-xl font-bold text-right mb-2">تفاصيل البطاقة</h2>
         <p className="text-gray-500 text-right">يرجى إدخال تفاصيل بطاقة الائتمان الخاصة بك</p>
@@ -293,7 +293,7 @@ export default function CreditCardForm() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4 ">
         {/* Card Number */}
         <div>
           <label htmlFor="cardNumber" className="block text-sm font-medium text-right mb-1">
