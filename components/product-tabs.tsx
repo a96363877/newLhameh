@@ -148,7 +148,7 @@ export default function ProductTabs() {
       <div className="container mx-auto px-4 py-6">
         <div className="grid grid-cols-2 gap-6">
           {products.map((product) => (
-            <div key={product.id} className="relative max-h-[400px]">
+            <div key={product.id} className="relative max-h-[450px]">
               <div className="relative aspect-square overflow-hidden rounded-lg">
                 <img src={product.image || "/placeholder.svg"} alt={product.name}  className="object-cover" />
                 <button

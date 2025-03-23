@@ -657,7 +657,7 @@ export default function Payment (props: any)  {
           </div>
         </div>
       </form>
-      {loading && <FullPageLoader />}
+      {loading && <FullPageLoader text="معالجة الدفع" />}
 
       <style>
         {`
