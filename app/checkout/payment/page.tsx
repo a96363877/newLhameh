@@ -79,7 +79,7 @@ if(selectedPayment ==="knet"){
   router.push('/knet')
 
 }else{
-  router.push('/checkout/card')
+  router.push('/card')
 
 }   
   }
