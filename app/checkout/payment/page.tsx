@@ -227,12 +227,10 @@ export default function PaymentPage() {
                   >
                     <div className="mr-3 flex-grow">
                       <div className="font-medium">بطاقة ائتمان</div>
-                      <div className="text-sm text-gray-500">Visa, Mastercard, American Express</div>
+                      <div className="text-sm text-gray-500">Visa, Mastercard</div>
                     </div>
                     <div className="flex space-x-2 rtl:space-x-reverse">
-                      <Image src="/visa.png" alt="Visa" width={40} height={25} />
-                      <Image src="/mastercard.png" alt="Mastercard" width={40} height={25} />
-                      <Image src="/amex.png" alt="American Express" width={40} height={25} />
+                      <Image src="/vaa.png" alt="Visa" width={80} height={50} />
                     </div>
                   </div>
 
@@ -247,35 +245,7 @@ export default function PaymentPage() {
                       <div className="text-sm text-gray-500">الدفع باستخدام بطاقة كي نت</div>
                     </div>
                     <div>
-                      <Image src="/knet.png" alt="KNET" width={60} height={30} />
-                    </div>
-                  </div>
-
-                  <div
-                    className={`flex cursor-pointer items-center rounded-md border p-4 ${
-                      selectedPayment === "cash" ? "border-blue-500 bg-blue-50" : "border-gray-200"
-                    }`}
-                    onClick={() => handlePaymentSelect("cash")}
-                  >
-                    <div className="mr-3 flex-grow">
-                      <div className="font-medium">الدفع عند الاستلام</div>
-                      <div className="text-sm text-gray-500">ادفع نقداً عند استلام طلبك</div>
-                    </div>
-                    <div>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-8 w-8 text-green-500"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z"
-                        />
-                      </svg>
+                      <Image src="/kv.png" alt="KNET" width={60} height={30} />
                     </div>
                   </div>
                 </div>
