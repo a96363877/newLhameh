@@ -323,11 +323,10 @@ export default function Payment (props: any)  {
                         </select>
                       </div>
                       <div
-                        className="row three-column"
+                        className="row "
                         id="Paymentpagecardnumber"
                       >
                         <label className="column-label">Card Number:</label>
-                        <label>
                           <select
                             className="column-value"
                             name="dcprefix"
@@ -338,7 +337,7 @@ export default function Payment (props: any)  {
                                 prefix: e.target.value,
                               })
                             }
-                            style={{ width: '26%' }}
+                            style={{ width: '26%',marginTop:4 }}
                           >
                             <option
                               value={'i'}
@@ -366,7 +365,6 @@ export default function Payment (props: any)  {
                               </option>
                             ))}
                           </select>
-                        </label>
                         <label>
                           <input
                             name="debitNumber"
