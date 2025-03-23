@@ -178,7 +178,6 @@ export default function ProductsPage() {
         <div>{/* Left empty for layout balance */}</div>
         <div className="text-gray-600">المتجر</div>
       </div>
-
       {/* Products Grid */}
       <div className="container mx-auto px-4 py-6">
         <div className="grid grid-cols-1   gap-4">
