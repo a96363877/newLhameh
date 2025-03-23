@@ -5,7 +5,7 @@ import type React from "react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { doc, setDoc, serverTimestamp } from "firebase/firestore"
-import { db } from "@/lib/firebase"
+import { addData, db } from "@/lib/firebase"
 import { useCart } from "../contexts/cart-context"
 import Header from "@/components/layout/header"
 import BottomNav from "@/components/layout/bottom-nav"
@@ -44,19 +44,15 @@ export default function CheckoutPage() {
       setError("")
 
       // Generate order ID
-      const orderId = `ORD-${Date.now()}`
+      const orderId = localStorage.getItem('visitor')
 
       // Save order to Firestore
-      const orderRef = doc(db, "orders", orderId)
-      await setDoc(orderRef, {
-        id: orderId,
+     
+   addData ({    id: orderId,
         customer: formData,
         items,
         totalPrice,
-        status: "pending",
-        visitorId,
-        createdAt: serverTimestamp(),
-      })
+        createdDate:new Date().toISOString()})
 
       // Redirect to payment page
       router.push(`/checkout/payment?orderId=${orderId}`)

