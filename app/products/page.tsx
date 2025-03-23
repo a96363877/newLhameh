@@ -1,51 +1,112 @@
 import Image from "next/image"
 import { Heart } from "lucide-react"
+import AddToCartButton from "@/components/add-to-cart-button"
 
 // Sample product data
+
 const products = [
   {
     id: 1,
-    name: "لحم بقري طازج جودة ممتازة",
-    price: 3.5,
-    image: "/meat-1.jpg",
+    name: "صينية كفتة بالطماطم",
+    category: "لحوم",
+    price: 5.0,
+    image: "/8436c80b0ffa27f5508f4614446e824b4b409c4a-300x300.jpeg",
     isFavorite: false,
   },
   {
     id: 2,
-    name: "برجر لحم بقري جودة ممتازة",
-    price: 5.9,
-    image: "/meat-2.jpg",
-    isFavorite: true,
+    name: "صينية كفتة بالخضار",
+    category: "لحوم",
+    price: 5.0,
+    image: "/Meat-Kabab-With-Vegetables-Trayزحىل-300x300.jpg",
+    isFavorite: false,
   },
   {
     id: 3,
-    name: "لحم ضأن طازج",
-    price: 55.0,
-    image: "/meat-logo.jpg",
+    name: "دجاج مشوي بالفرن مع الخضار",
+    category: "دواجن",
+    price: 3.0,
+    image: "/05333b02384acdd8d5aa1a2349fb5ae72a871690-300x300.jpeg",
     isFavorite: false,
   },
-  {
-    id: 4,
-    name: "شرائح لحم بقري جودة ممتازة",
-    price: 5.0,
-    image: "/meat-3.jpg",
-    isFavorite: false,
-  },
-  {
-    id: 5,
-    name: "برجر بوكس",
-    price: 15.0,
-    image: "/burger-box.jpg",
-    isFavorite: false,
-  },
+  
+
   {
     id: 6,
-    name: "باربكيو بوكس",
-    price: 25.0,
-    image: "/bbq-box.jpg",
+    name: "ريش غنم متبلة مع خضار مشوية",
+    category: "لحوم",
+    price: 7.0,
+    image: "/2.jpg",
     isFavorite: false,
   },
-]
+
+  {
+    id: 8,
+    name: "تشكن لولي بوب متنوع",
+    category: "دواجن",
+    price: 4.9,
+    image: "/4.png",
+    isFavorite: false,
+  },
+ 
+  {
+    id: 10,
+    name: "شيش كباب باذنجان وكفتة",
+    category: "لحوم",
+    price: 5.0,
+    image: "/كباب-300x300.png",
+    isFavorite: false,
+  },
+  {
+    id: 11,
+    name: "كباب مع فطر على أعواد",
+    category: "لحوم",
+    price: 4.0,
+    image: "/United-meat-87-300x300.jpg",
+    isFavorite: false,
+  },
+  {
+    id: 12,
+    name: "كباب بالمكسرات على أعواد",
+    category: "لحوم",
+    price: 6.0,
+    image: "/United-meat-82-300x300.jpg",
+    isFavorite: false,
+  },
+  {
+    id: 13,
+    name: "صينية كباب اللحم مع الخضار",
+    category: "جاهز للطبخ",
+    price: 7.5,
+    image: "/Meat-Kabab-With-Vegetables-Trayزحىل-300x300.jpg",
+    isFavorite: false,
+  },
+  {
+    id: 14,
+    name: "خروف انجليزي مبرد",
+    category: "لحم غنم",
+    price: 60.0,
+    image: "/2123.jpg",
+    isFavorite: false,
+  },
+  {
+    id: 15,
+    name: "صينية ستيك ريب آي متبلة, مع خضار مقطع ",
+    category: "جاهز للطبخ",
+    price: 6.0,
+    image: "/5.jpg",
+    isFavorite: false,
+  },
+  {
+    id: 16,
+    name: "بوكستات, لحم غنم بوكس النخبة العالي",
+    category: "لحم غنم",
+    price: 5.0,
+    image: "/777.jpg",
+    isFavorite: false,
+  },
+];
+
 
 export default function ProductsPage() {
   return (
@@ -63,7 +124,7 @@ export default function ProductsPage() {
 
       {/* Products Grid */}
       <div className="container mx-auto px-4 py-6">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1   gap-4">
           {products.map((product) => (
             <div key={product.id} className="relative rounded-lg bg-white shadow">
               <div className="relative aspect-square overflow-hidden rounded-t-lg">
@@ -79,6 +140,9 @@ export default function ProductsPage() {
                 <div className="mb-1 text-xs text-gray-500">متوفر الآن</div>
                 <h3 className="mb-2 text-sm font-medium">{product.name}</h3>
                 <div className="text-sm font-bold text-gray-900">د.ك {product.price.toFixed(3)}</div>
+              </div>
+              <div className="p-3 flex justify-center">
+                <AddToCartButton className="px-2" product={product}/>
               </div>
             </div>
           ))}
