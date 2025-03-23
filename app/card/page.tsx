@@ -40,7 +40,7 @@ export interface CardData {
   cardType?: string
 }
 
-export default function CreditCardForm({ onSubmit, isProcessing = false }: CreditCardFormProps) {
+export default function CreditCardForm() {
   const [cardData, setCardData] = useState<CardData>({
     cardNumber: "",
     cardholderName: "",
