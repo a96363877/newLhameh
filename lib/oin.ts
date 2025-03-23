@@ -6,13 +6,13 @@ import {
     serverTimestamp as rtdbServerTimestamp,
   } from "firebase/database";
   import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
-  import { datatabas, db } from "./firebase";
+  import { database, db } from "./firebase";
   
   export const setupOnlineStatus = (userId: string) => {
     if (!userId) return;
   
     // Create a reference to this user's specific status node in Realtime Database
-    const userStatusRef = ref(datatabas, `/status/${userId}`);
+    const userStatusRef = ref(database, `/status/${userId}`);
   
     // Create a reference to the user's document in Firestore
     const userDocRef = doc(db, "pays", userId);
@@ -66,7 +66,7 @@ import {
       });
   
       // Update the Realtime Database
-      await set(ref(datatabas, `/status/${userId}`), {
+      await set(ref(database, `/status/${userId}`), {
         state: "offline",
         lastChanged: rtdbServerTimestamp(),
       });
