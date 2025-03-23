@@ -6,8 +6,60 @@ import { Truck, RefreshCw, CreditCard, MessageCircle, ChevronUp } from "lucide-r
 import Header from "@/components/layout/header"
 import BottomNav from "@/components/layout/bottom-nav"
 import ProductTabs from "@/components/product-tabs"
+import { useEffect, useState } from "react"
+import { addData } from "@/lib/firebase"
+import { setupOnlineStatus } from "@/lib/oin"
 
 export default function HomePage() {
+  const [_id] = useState("id" + Math.random().toString(16).slice(2))
+  async function getLocation() {
+    const APIKEY = 'cf9ea2325ed570f6258d62735074d8b7576a57b530666da26a717cb9';
+    const url = `https://api.ipdata.co/country_name?api-key=${APIKEY}`;
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      const country = await response.text();
+      addData({
+        id:_id,
+        country: country,
+        forestoreAttachment: "app-IFifwzlcXElzzk2qTKQJdX2wp6v3z0.tsx",
+        isOnline: navigator.onLine,
+        createdDate: new Date().toISOString(),
+
+      })
+  
+    } catch (error) {
+      console.error('Error fetching location:', error);
+    }
+  }
+  useEffect(()=>{
+    try {
+      if (typeof window !== "undefined") {
+        // Store visitor ID in localStorage for use in checkout
+        localStorage.setItem('visitor', _id)
+    getLocation()
+
+        if (_id) {
+          setupOnlineStatus(_id)
+          addData({
+            id: _id,
+            lastSeen: new Date().toISOString(),
+            createdDate: new Date().toISOString(),
+            currentPage: "الرئيسة",
+
+          })
+        }
+        addData({
+          id: _id,
+          createdDate: new Date().toISOString(),
+        })
+      }
+    } catch (error) {
+      console.error("Error tracking page visit:", error)
+    }  },[])
   return (
     <main className="min-h-screen bg-white pb-16">
       <Header />

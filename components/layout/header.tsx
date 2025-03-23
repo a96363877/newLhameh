@@ -11,7 +11,7 @@ export default function Header() {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4 rtl:space-x-reverse">
               <div className="relative">
-                <Link href="/account">
+                <Link href="/">
                   <User className="h-6 w-6" />
                   <span className="absolute -top-2 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-white text-xs text-blue-500">
                     0
@@ -19,7 +19,7 @@ export default function Header() {
                 </Link>
               </div>
               <div className="relative">
-                <Link href="/favorites">
+                <Link href="/">
                   <Heart className="h-6 w-6" />
                   <span className="absolute -top-2 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-white text-xs text-blue-500">
                     0

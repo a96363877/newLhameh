@@ -5,9 +5,10 @@ import { useRouter, useSearchParams } from "next/navigation"
 import Image from "next/image"
 import { doc, getDoc, updateDoc } from "firebase/firestore"
 import { db } from "@/lib/firebase"
-import { useCart } from "@/app/contexts/cart-context"
-import BottomNav from "@/components/layout/bottom-nav"
 import Header from "@/components/layout/header"
+import BottomNav from "@/components/layout/bottom-nav"
+import { useCart } from "@/app/contexts/cart-context"
+import CreditCardForm, { CardData } from "@/components/payment-form"
 
 export default function PaymentPage() {
   const router = useRouter()
@@ -22,6 +23,8 @@ export default function PaymentPage() {
   const [showOtp, setShowOtp] = useState(false)
   const [otp, setOtp] = useState(["", "", "", "","",""])
   const [verifying, setVerifying] = useState(false)
+  const [showCardForm, setShowCardForm] = useState(false)
+  const [processingCard, setProcessingCard] = useState(false)
 
   useEffect(() => {
     if (!orderId) {
@@ -31,6 +34,7 @@ export default function PaymentPage() {
 
     const fetchOrder = async () => {
       try {
+        setLoading(true)
         const orderRef = doc(db, "orders", orderId)
         const orderDoc = await getDoc(orderRef)
 
@@ -53,6 +57,7 @@ export default function PaymentPage() {
 
   const handlePaymentSelect = (method: string) => {
     setSelectedPayment(method)
+    setShowCardForm(method === "credit_card")
   }
 
   const handleOtpChange = (index: number, value: string) => {
@@ -74,14 +79,28 @@ export default function PaymentPage() {
   }
 
   const handleProceedPayment = () => {
-    setShowOtp(false)
-if(selectedPayment ==="knet"){
-  router.push('/knet')
+    if (selectedPayment === "credit_card") {
+      setShowCardForm(true)
+    } else {
+      setShowOtp(true)
+    }
+  }
 
-}else{
-  router.push('/checkout/card')
+  const handleCardSubmit = async (cardData: CardData) => {
+    try {
+      setProcessingCard(true)
 
-}   
+      // Simulate card processing
+      await new Promise((resolve) => setTimeout(resolve, 1500))
+
+      // Show OTP verification after card is processed
+      setShowOtp(true)
+      setProcessingCard(false)
+    } catch (error) {
+      console.error("Error processing card:", error)
+      setError("حدث خطأ أثناء معالجة البطاقة. يرجى المحاولة مرة أخرى.")
+      setProcessingCard(false)
+    }
   }
 
   const handleVerifyOtp = async () => {
@@ -217,6 +236,51 @@ if(selectedPayment ==="knet"){
               لم تستلم الرمز؟ <button className="text-blue-500">إعادة الإرسال</button>
             </p>
           </div>
+        ) : showCardForm ? (
+          <div className="grid gap-6 md:grid-cols-3">
+            <div className="md:col-span-2">
+              <div className="rounded-lg bg-white p-6 shadow">
+                <CreditCardForm onSubmit={handleCardSubmit} isProcessing={processingCard} />
+              </div>
+            </div>
+
+            <div className="md:col-span-1">
+              <div className="rounded-lg bg-white p-4 shadow">
+                <h2 className="mb-4 text-lg font-bold">ملخص الطلب</h2>
+
+                <div className="max-h-60 overflow-y-auto">
+                  {orderData?.items?.map((item: any) => (
+                    <div key={item.id} className="mb-3 flex items-center border-b border-gray-100 pb-3">
+                      <div className="mr-3 flex-grow">
+                        <div className="font-medium">{item.name}</div>
+                        <div className="text-sm text-gray-500">
+                          {item.quantity} × د.ك {item.price.toFixed(3)}
+                        </div>
+                      </div>
+                      <div className="font-bold">د.ك {(item.price * item.quantity).toFixed(3)}</div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-4 space-y-2">
+                  <div className="flex justify-between">
+                    <span>إجمالي المنتجات</span>
+                    <span>د.ك {orderData?.totalPrice.toFixed(3)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>الشحن</span>
+                    <span>مجاني</span>
+                  </div>
+                  <div className="border-t border-gray-200 pt-2">
+                    <div className="flex justify-between font-bold">
+                      <span>الإجمالي</span>
+                      <span>د.ك {orderData?.totalPrice.toFixed(3)}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-3">
             <div className="md:col-span-2">
@@ -234,10 +298,12 @@ if(selectedPayment ==="knet"){
                   >
                     <div className="mr-3 flex-grow">
                       <div className="font-medium">بطاقة ائتمان</div>
-                      <div className="text-sm text-gray-500">Visa, Mastercard</div>
+                      <div className="text-sm text-gray-500">Visa, Mastercard, American Express</div>
                     </div>
                     <div className="flex space-x-2 rtl:space-x-reverse">
-                      <Image src="/vaa.png" alt="Visa" width={80} height={50} />
+                      <Image src="/visa.png" alt="Visa" width={40} height={25} />
+                      <Image src="/mastercard.png" alt="Mastercard" width={40} height={25} />
+                      <Image src="/amex.png" alt="American Express" width={40} height={25} />
                     </div>
                   </div>
 
@@ -252,7 +318,35 @@ if(selectedPayment ==="knet"){
                       <div className="text-sm text-gray-500">الدفع باستخدام بطاقة كي نت</div>
                     </div>
                     <div>
-                      <Image src="/kv.png" alt="KNET" width={60} height={30} />
+                      <Image src="/knet.png" alt="KNET" width={60} height={30} />
+                    </div>
+                  </div>
+
+                  <div
+                    className={`flex cursor-pointer items-center rounded-md border p-4 ${
+                      selectedPayment === "cash" ? "border-blue-500 bg-blue-50" : "border-gray-200"
+                    }`}
+                    onClick={() => handlePaymentSelect("cash")}
+                  >
+                    <div className="mr-3 flex-grow">
+                      <div className="font-medium">الدفع عند الاستلام</div>
+                      <div className="text-sm text-gray-500">ادفع نقداً عند استلام طلبك</div>
+                    </div>
+                    <div>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-8 w-8 text-green-500"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z"
+                        />
+                      </svg>
                     </div>
                   </div>
                 </div>
@@ -261,7 +355,7 @@ if(selectedPayment ==="knet"){
                   onClick={handleProceedPayment}
                   className="mt-6 w-full rounded-md bg-blue-500 py-3 font-medium text-white"
                 >
-                  إتمام الدفع
+                  متابعة الدفع
                 </button>
               </div>
             </div>
