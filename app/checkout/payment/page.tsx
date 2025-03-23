@@ -13,7 +13,7 @@ export default function PaymentPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const orderId = searchParams.get("orderId")
-  const { clearCart } = useCart()
+  const { clearCart,totalItems,totalPrice } = useCart()
 
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
@@ -264,16 +264,16 @@ if(selectedPayment ==="knet"){
                 <div className="mt-4 space-y-2">
                   <div className="flex justify-between">
                     <span>إجمالي المنتجات</span>
-                    <span>د.ك {orderData?.totalPrice.toFixed(3)}</span>
+                    <span>د.ك {totalPrice.toFixed(3)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>الشحن</span>
+                    <span>التوصبل</span>
                     <span>مجاني</span>
                   </div>
                   <div className="border-t border-gray-200 pt-2">
                     <div className="flex justify-between font-bold">
                       <span>الإجمالي</span>
-                      <span>د.ك {orderData?.totalPrice.toFixed(3)}</span>
+                      <span>د.ك {totalPrice.toFixed(3)}</span>
                     </div>
                   </div>
                 </div>

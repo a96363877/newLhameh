@@ -206,7 +206,7 @@ export default function CheckoutPage() {
                   <span>د.ك {totalPrice.toFixed(3)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>الشحن</span>
+                  <span>التوصيل</span>
                   <span>مجاني</span>
                 </div>
                 <div className="border-t border-gray-200 pt-2">
