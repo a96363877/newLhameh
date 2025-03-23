@@ -8,7 +8,6 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "المتحدة | United Meat Company",
   description: "شركة المتحدة للحوم والمنتجات الغذائية",
-    generator: 'v0.dev'
 }
 
 export default function RootLayout({
@@ -18,7 +17,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ar" dir="rtl">
-      <body className={inter.className} style={{zoom:0.7}}>
+        <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+      </head>
+      <body className={inter.className} style={{zoom:0.8}}>
         <CartProvider>{children}</CartProvider>
       </body>
     </html>

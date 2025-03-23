@@ -6,6 +6,63 @@ import AddToCartButton from "@/components/add-to-cart-button"
 
 const products = [
   {
+    id: 17,
+    name: "خروف نعيمي عربي سوري",
+    category: "لحوم",
+    price: 20.0,
+    image: "/5981178470547441006.jpg",
+    isFavorite: false,
+  },
+  {
+    id: 18,
+    name: "ريش غنم عربي",
+    category: "لحوم",
+    price: 15.0,
+    image: "/5981178470547441005.jpg",
+    isFavorite: false,
+  },
+  {
+    id: 19,
+    name: "ذبيحة نعيمي",
+    category: "لحوم",
+    price: 20.0,
+    image: "/5981178470547441004.jpg",
+    isFavorite: false,
+  },
+  {
+    id: 20,
+    name: "مفروم خشن عجل مبرد",
+    category: "لحوم",
+    price: 10.0,
+    image: "/5981178470547441002.jpg",
+    isFavorite: false,
+  },
+  {
+    id: 21,
+    name: "شيش طاووق طازج",
+    category: "لحوم",
+    price: 12.0,
+    image: "/5981178470547441001.jpg",
+    isFavorite: false,
+  },
+  {
+    id: 22,
+    name: "كبدة خاروف طازج",
+    category: "لحوم",
+    price: 14.0,
+    image: "/5981178470547440999.jpg",
+    isFavorite: false,
+  },
+  {
+    id: 23,
+    name: "لحم غنم طازج مكبوس",
+    category: "لحوم",
+    price: 18.0,
+    image: "/5981178470547440998.jpg",
+    isFavorite: false,
+  },
+  
+  {
     id: 1,
     name: "صينية كفتة بالطماطم",
     category: "لحوم",
@@ -127,8 +184,8 @@ export default function ProductsPage() {
         <div className="grid grid-cols-1   gap-4">
           {products.map((product) => (
             <div key={product.id} className="relative rounded-lg bg-white shadow">
-              <div className="relative aspect-square overflow-hidden rounded-t-lg">
-                <Image src={product.image || "/placeholder.svg"} alt={product.name} fill className="object-cover" />
+              <div className="relative aspect-1/2 overflow-hidden rounded-t-lg">
+                <img src={product.image || "/placeholder.svg"} alt={product.name}  className="object-cover" />
                 <button
                   className="absolute right-2 top-2 rounded-full bg-white p-1.5 shadow"
                   aria-label={product.isFavorite ? "إزالة من المفضلة" : "إضافة إلى المفضلة"}

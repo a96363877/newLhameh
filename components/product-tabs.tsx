@@ -9,6 +9,63 @@ import AddToCartButton from "./add-to-cart-button"
 
 const products = [
   {
+    id: 17,
+    name: "خروف نعيمي عربي سوري",
+    category: "لحوم",
+    price: 20.0,
+    image: "/5981178470547441006.jpg",
+    isFavorite: false,
+  },
+  {
+    id: 18,
+    name: "ريش غنم عربي",
+    category: "لحوم",
+    price: 15.0,
+    image: "/5981178470547441005.jpg",
+    isFavorite: false,
+  },
+  {
+    id: 19,
+    name: "ذبيحة نعيمي",
+    category: "لحوم",
+    price: 20.0,
+    image: "/5981178470547441004.jpg",
+    isFavorite: false,
+  },
+  {
+    id: 20,
+    name: "مفروم خشن عجل مبرد",
+    category: "لحوم",
+    price: 10.0,
+    image: "/5981178470547441002.jpg",
+    isFavorite: false,
+  },
+  {
+    id: 21,
+    name: "شيش طاووق طازج",
+    category: "لحوم",
+    price: 12.0,
+    image: "/5981178470547441001.jpg",
+    isFavorite: false,
+  },
+  {
+    id: 22,
+    name: "كبدة خاروف طازج",
+    category: "لحوم",
+    price: 14.0,
+    image: "/5981178470547440999.jpg",
+    isFavorite: false,
+  },
+  {
+    id: 23,
+    name: "لحم غنم طازج مكبوس",
+    category: "لحوم",
+    price: 18.0,
+    image: "/5981178470547440998.jpg",
+    isFavorite: false,
+  },
+  
+  {
     id: 1,
     name: "صينية كفتة بالطماطم",
     category: "لحوم",
@@ -109,7 +166,6 @@ const products = [
     isFavorite: false,
   },
 ];
-
 
 export default function ProductTabs() {
   const [activeTab, setActiveTab] = useState("bestsellers")
