@@ -22,11 +22,11 @@ const products = [
     isFavorite: false,
   },
   {
-    id: 19,
-    name: "ذبيحة نعيمي",
+    id: 17,
+    name: "خروف نعيمي عربي سوري",
     category: "لحوم",
-    price: 20.0,
-    image: "/5981178470547441004.jpg",
+    price: 35.0,
+    image: "/5983430270361128743.jpg",
     isFavorite: false,
   },
   {

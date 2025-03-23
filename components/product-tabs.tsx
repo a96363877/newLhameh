@@ -12,8 +12,8 @@ const products = [
     id: 17,
     name: "خروف نعيمي عربي سوري",
     category: "لحوم",
-    price: 20.0,
-    image: "/5981178470547441006.jpg",
+    price: 35.0,
+    image: "/5983430270361128743.jpg",
     isFavorite: false,
   },
   {
