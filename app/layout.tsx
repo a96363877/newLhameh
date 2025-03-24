@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     siteName: "المتحدة للحوم",
     images: [
       {
-        url: "/og-image.png", // Path to your OG image in the public directory
+        url: "https://unionkw.com/lounited.png", // Path to your OG image in the public directory
         width: 1200,
         height: 630,
         alt: "المتحدة للحوم والمنتجات الغذائية",

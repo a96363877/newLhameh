@@ -4,6 +4,7 @@ import { useState } from "react"
 import Image from "next/image"
 import { Heart } from "lucide-react"
 import AddToCartButton from "./add-to-cart-button"
+import CheckoutButton from "./chekout-btn"
 
 // Sample product data
 
@@ -218,8 +219,10 @@ export default function ProductTabs() {
                 <div className="text-sm text-gray-500">{product.category}</div>
                 <h3 className="mt-1 text-base font-medium">{product.name}</h3>
                 <div className="mt-1 text-lg font-bold">د.ك {product.price.toFixed(3)}</div>
-                <div className="mt-3">
-                  <AddToCartButton product={product} className="w-full" />
+                <div className="mt-3 flex flex-row justify-between">
+                  <AddToCartButton product={product}  />        
+                  <CheckoutButton productId={product.id.toString()} productName={product.name} price={product.price} />
+
                 </div>
               </div>
             </div>
