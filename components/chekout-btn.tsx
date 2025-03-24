@@ -30,7 +30,7 @@ export default function CheckoutButton({ productId, productName, price, quantity
 
   return (
     <Button
-    className="m-2"
+    className={`flex items-center justify-center rounded-md bg-blue-500 px-1 py-2 text-white transition-all hover:bg-blue-600 mx-2`}
     size={'sm'}
       onClick={handleCheckout}
       disabled={isLoading}

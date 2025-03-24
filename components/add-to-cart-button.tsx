@@ -33,7 +33,7 @@ export default function AddToCartButton({ product, className = "" }: AddToCartBu
     <Button
     size={'sm'}
       onClick={handleAddToCart}
-      className={`flex items-center justify-center rounded-md bg-blue-500 px-1 py-2 text-white transition-all hover:bg-blue-600 ${className} ${added ? "bg-green-500 hover:bg-green-600" : ""}`}
+className={`flex items-center justify-center rounded-md  px-1 py-2 mx-2 text-white transition-all hover:bg-blue-600 ${className} ${added ? "bg-green-500 hover:bg-green-600" : ""}`}
       disabled={added}
     >
       {added ? (

@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import Image from "next/image"
 import { Heart } from "lucide-react"
 import AddToCartButton from "./add-to-cart-button"
 import CheckoutButton from "./chekout-btn"
@@ -65,7 +64,7 @@ const products = [
     image: "/5981178470547440998.jpg",
     isFavorite: false,
   },
-  
+
   {
     id: 1,
     name: "صينية كفتة بالطماطم",
@@ -90,7 +89,6 @@ const products = [
     image: "/05333b02384acdd8d5aa1a2349fb5ae72a871690-300x300.jpeg",
     isFavorite: false,
   },
-  
 
   {
     id: 6,
@@ -109,7 +107,7 @@ const products = [
     image: "/4.png",
     isFavorite: false,
   },
- 
+
   {
     id: 10,
     name: "شيش كباب باذنجان وكفتة",
@@ -166,66 +164,77 @@ const products = [
     image: "/777.jpg",
     isFavorite: false,
   },
-];
+]
 
 export default function ProductTabs() {
   const [activeTab, setActiveTab] = useState("bestsellers")
 
   return (
-    <div className="py-8">
+    <div className="py-8 max-w-7xl mx-auto">
       {/* Tabs */}
-      <div className="flex justify-center border-b border-gray-200">
+      <div className="flex justify-center border-b border-gray-200 mb-6 overflow-x-auto px-4">
         <button
-          className={`px-6 py-3 text-lg font-medium ${
-            activeTab === "bestsellers" ? "text-blue-500 border-b-2 border-blue-500" : "text-gray-500"
+          className={`px-4 md:px-6 py-3 text-base md:text-lg font-medium whitespace-nowrap transition-colors ${
+            activeTab === "bestsellers"
+              ? "text-blue-500 border-b-2 border-blue-500"
+              : "text-gray-500 hover:text-gray-700"
           }`}
           onClick={() => setActiveTab("bestsellers")}
         >
           الأكثر مبيعاً
         </button>
         <button
-          className={`px-6 py-3 text-lg font-medium ${
-            activeTab === "featured" ? "text-blue-500 border-b-2 border-blue-500" : "text-gray-500"
+          className={`px-4 md:px-6 py-3 text-base md:text-lg font-medium whitespace-nowrap transition-colors ${
+            activeTab === "featured" ? "text-blue-500 border-b-2 border-blue-500" : "text-gray-500 hover:text-gray-700"
           }`}
           onClick={() => setActiveTab("featured")}
         >
           المميزة
         </button>
         <button
-          className={`px-6 py-3 text-lg font-medium ${
-            activeTab === "discounts" ? "text-blue-500 border-b-2 border-blue-500" : "text-gray-500"
+          className={`px-4 md:px-6 py-3 text-base md:text-lg font-medium whitespace-nowrap transition-colors ${
+            activeTab === "discounts" ? "text-blue-500 border-b-2 border-blue-500" : "text-gray-500 hover:text-gray-700"
           }`}
           onClick={() => setActiveTab("discounts")}
         >
           تخفيضات
         </button>
       </div>
-
-      {/* Products Grid */}
+      Q{/* Products Grid */}
       <div className="container mx-auto px-4 py-6">
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
           {products.map((product) => (
-            <div key={product.id} className="relative max-h-[450px]">
-              <div className="relative aspect-square overflow-hidden rounded-lg">
-                <img src={product.image || "/placeholder.svg"} alt={product.name}  className="object-cover" />
+            <div
+              key={product.id}
+              className="relative bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden border border-gray-100"
+            >
+              <div className="relative aspect-square overflow-hidden">
+                <img
+                  src={product.image || "/placeholder.svg"}
+                  alt={product.name}
+                  className="object-cover w-full h-full transition-transform duration-300 hover:scale-105"
+                />
                 <button
-                  className="absolute right-2 top-2 rounded-full bg-white p-1.5 shadow"
+                  className="absolute right-2 top-2 rounded-full bg-white p-1.5 shadow hover:bg-gray-50 transition-colors"
                   aria-label={product.isFavorite ? "إزالة من المفضلة" : "إضافة إلى المفضلة"}
                 >
                   <Heart className={`h-5 w-5 ${product.isFavorite ? "fill-red-500 text-red-500" : "text-gray-400"}`} />
                 </button>
               </div>
-              <div className="mt-3 text-right">
+              <div className="p-4 text-right">
                 <div className="text-sm text-gray-500">{product.category}</div>
-                <h3 className="mt-1 text-base font-medium">{product.name}</h3>
-                <div className="mt-1 text-lg font-bold">د.ك {product.price.toFixed(3)}</div>
-                <div className="mt-3 flex flex-row justify-between">
-                  <AddToCartButton product={product}  />        
-                  <CheckoutButton productId={product.id.toString()} productName={product.name} price={product.price} />
-
+                <h3 className="mt-1 text-base font-medium line-clamp-2 h-12">{product.name}</h3>
+                <div className="mt-1 text-lg font-bold text-blue-600">د.ك {product.price.toFixed(3)}</div>
+                <div className="mt-3 grid grid-cols-2 ">
+                    <CheckoutButton
+                      productId={product.id.toString()}
+                      productName={product.name}
+                      price={product.price}
+                    />
+                    <AddToCartButton product={product} />
+                  </div>
                 </div>
               </div>
-            </div>
           ))}
         </div>
       </div>
