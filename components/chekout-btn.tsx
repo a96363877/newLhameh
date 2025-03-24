@@ -30,6 +30,7 @@ export default function CheckoutButton({ productId, productName, price, quantity
 
   return (
     <Button
+    className="m-2"
     size={'sm'}
       onClick={handleCheckout}
       disabled={isLoading}

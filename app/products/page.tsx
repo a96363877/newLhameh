@@ -1,6 +1,7 @@
 import Image from "next/image"
 import { Heart } from "lucide-react"
 import AddToCartButton from "@/components/add-to-cart-button"
+import CheckoutButton from "@/components/chekout-btn";
 
 // Sample product data
 
@@ -197,9 +198,11 @@ export default function ProductsPage() {
                 <h3 className="mb-2 text-sm font-medium">{product.name}</h3>
                 <div className="text-sm font-bold text-gray-900">د.ك {product.price.toFixed(3)}</div>
               </div>
-              <div className="p-3 flex justify-center">
-                <AddToCartButton className="px-2" product={product}/>
-              </div>
+              <div className="mt-3 flex flex-row justify-between">
+                  <AddToCartButton product={product} className="m-2" />        
+                  <CheckoutButton productId={product.id.toString()} productName={product.name} price={product.price} />
+
+                </div>
             </div>
           ))}
         </div>
