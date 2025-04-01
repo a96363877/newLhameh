@@ -4,6 +4,7 @@ import { ShoppingCart } from "lucide-react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "./ui/button"
+import { useCart } from "@/app/contexts/cart-context"
 
 interface CheckoutButtonProps {
   productId: string
@@ -15,10 +16,10 @@ interface CheckoutButtonProps {
 export default function CheckoutButton({ productId, productName, price, quantity = 1 }: CheckoutButtonProps) {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+  const { addItem } = useCart()
 
   const handleCheckout = async () => {
     setIsLoading(true)
-
     try {
       router.push("/checkout")
     } catch (error) {

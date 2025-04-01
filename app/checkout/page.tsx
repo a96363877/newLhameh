@@ -34,10 +34,7 @@ export default function CheckoutPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (items.length === 0) {
-      setError("سلة التسوق فارغة")
-      return
-    }
+  
 
     try {
       setLoading(true)
